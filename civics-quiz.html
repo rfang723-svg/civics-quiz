@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Civics Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --border2: #3a3a3a;
+    --text: #f0ede6;
+    --muted: #888;
+    --accent: #c8a96e;
+    --accent-dim: #7a6340;
+    --success-bg: #0e2016;
+    --success-border: #1e5c30;
+    --success-text: #5adb7e;
+    --danger-bg: #1e0d0d;
+    --danger-border: #5c1e1e;
+    --danger-text: #e06060;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .flag-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+  }
+
+  .flag-stripe {
+    width: 32px;
+    height: 4px;
+    background: var(--accent);
+  }
+
+  .flag-star {
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 4px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .quiz-card {
+    width: 100%;
+    max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both 0.2s;
+  }
+
+  .card-top {
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .progress-wrap {
+    flex: 1;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--border2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .score-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(200,169,110,0.1);
+    border: 1px solid rgba(200,169,110,0.25);
+    padding: 4px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .card-body {
+    padding: 2rem 1.75rem;
+  }
+
+  .q-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--text);
+    margin-bottom: 1.75rem;
+    min-height: 60px;
+  }
+
+  .ans-wrap {
+    position: relative;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    resize: none;
+    transition: border-color 0.2s;
+    rows: 2;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent-dim);
+  }
+
+  textarea::placeholder {
+    color: #555;
+  }
+
+  textarea:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .hint-text {
+    font-size: 11px;
+    color: #555;
+    font-family: 'DM Mono', monospace;
+    margin-top: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.25rem;
+  }
+
+  button {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px 22px;
+    transition: all 0.15s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: #0d0d0d;
+    border: none;
+  }
+
+  .btn-submit:hover {
+    background: #dbbf80;
+    transform: translateY(-1px);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .btn-next {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border2);
+    display: none;
+  }
+
+  .btn-next:hover {
+    background: var(--surface2);
+    border-color: var(--border);
+  }
+
+  .feedback {
+    margin-top: 1rem;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .feedback.correct {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+  }
+
+  .feedback.wrong {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger-text);
+  }
+
+  .score-screen {
+    display: none;
+    padding: 3rem 1.75rem;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .score-denom {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  .score-verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: var(--text);
+    margin-top: 1.5rem;
+  }
+
+  .score-detail {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.75rem 0;
+  }
+
+  .btn-restart {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    padding: 12px 32px;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .btn-restart:hover {
+    background: rgba(200,169,110,0.08);
+  }
+
+  .pip-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .pip {
+    width: 28px;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--border2);
+    transition: background 0.3s;
+  }
+
+  .pip.c { background: var(--success-text); }
+  .pip.w { background: var(--danger-text); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .card-body.animate-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  footer {
+    margin-top: 2.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="flag-row">
+    <div class="flag-stripe"></div>
+    <span class="flag-star">★ ★ ★</span>
+    <div class="flag-stripe"></div>
+  </div>
+  <h1>U.S. <span>Civics</span> Quiz</h1>
+  <p class="subtitle">Naturalization Test Practice</p>
+</header>
+
+<div class="quiz-card" id="quiz-card">
+  <div class="card-top">
+    <div class="progress-wrap">
+      <div class="progress-label" id="prog-label">Question 1 of 10</div>
+      <div class="progress-track"><div class="progress-fill" id="pbar" style="width:10%"></div></div>
+    </div>
+    <div class="score-badge" id="score-badge">Score: 0</div>
+  </div>
+
+  <div class="card-body" id="card-body">
+    <div class="q-num" id="q-num">01 / 10</div>
+    <div class="q-text" id="q-text">Loading...</div>
+    <div class="ans-wrap">
+      <textarea id="ans-input" rows="2" placeholder="Type your answer here..."></textarea>
+      <div class="hint-text">Press Enter to submit &nbsp;·&nbsp; Shift+Enter for new line</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-submit" id="btn-submit" onclick="checkAnswer()">Submit</button>
+      <button class="btn-next" id="btn-next" onclick="nextQ()">Next →</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="score-screen" id="score-screen">
+    <div class="pip-row" id="pip-row"></div>
+    <div class="score-big" id="final-score">0</div>
+    <div class="score-denom">OUT OF 10</div>
+    <div class="score-verdict" id="verdict"></div>
+    <div class="score-detail" id="score-detail"></div>
+    <div class="divider"></div>
+    <button class="btn-restart" onclick="startQuiz()">Play Again</button>
+  </div>
+</div>
+
+<footer>Based on the official USCIS 100 civics questions &nbsp;·&nbsp; Pass mark: 6 / 10</footer>
+
+<script>
+var ALL_Q = [
+  { q: "What is the supreme law of the land?", accepted: ["constitution"] },
+  { q: "What do we call the first ten amendments to the Constitution?", accepted: ["bill of rights"] },
+  { q: "How many amendments does the Constitution have?", accepted: ["27","twenty-seven"] },
+  { q: "What are the two parts of the U.S. Congress?", accepted: ["senate and house","house and senate","senate and house of representatives","house of representatives and senate"] },
+  { q: "How many U.S. Senators are there?", accepted: ["100","one hundred"] },
+  { q: "We elect a U.S. Senator for how many years?", accepted: ["6","six"] },
+  { q: "We elect a U.S. Representative for how many years?", accepted: ["2","two"] },
+  { q: "Who is the Commander in Chief of the military?", accepted: ["president","the president"] },
+  { q: "What is the highest court in the United States?", accepted: ["supreme court","the supreme court"] },
+  { q: "What stops one branch of government from becoming too powerful?", accepted: ["checks and balances","separation of powers"] },
+  { q: "Who makes federal laws?", accepted: ["congress","senate and house","legislature","senate","house of representatives"] },
+  { q: "What is one right or freedom from the First Amendment?", accepted: ["speech","religion","assembly","press","petition","freedom of speech","freedom of religion","freedom of assembly","freedom of the press"] },
+  { q: "Who wrote the Declaration of Independence?", accepted: ["jefferson","thomas jefferson"] },
+  { q: "When was the Declaration of Independence adopted?", accepted: ["july 4 1776","july 4th 1776","1776","july 4, 1776"] },
+  { q: "What ocean is on the West Coast of the United States?", accepted: ["pacific","pacific ocean"] },
+  { q: "What ocean is on the East Coast of the United States?", accepted: ["atlantic","atlantic ocean"] },
+  { q: "What is the name of the national anthem?", accepted: ["star-spangled banner","the star-spangled banner","star spangled banner"] },
+  { q: "What are the two major political parties in the United States?", accepted: ["democratic and republican","republican and democratic","democrat and republican","republican and democrat"] },
+  { q: "Who is the 'Father of Our Country'?", accepted: ["washington","george washington"] },
+  { q: "What is the capital of the United States?", accepted: ["washington dc","washington d.c.","washington, d.c.","washington, dc"] },
+  { q: "How old do citizens have to be to vote for President?", accepted: ["18","eighteen"] },
+  { q: "What movement tried to end racial discrimination?", accepted: ["civil rights","civil rights movement"] },
+  { q: "What did Martin Luther King Jr. do?", accepted: ["fought for civil rights","worked for equality","civil rights","fought for equality"] },
+  { q: "Name one war fought by the United States in the 1800s.", accepted: ["war of 1812","mexican-american war","civil war","spanish-american war","mexican american war"] },
+  { q: "Who was the first President?", accepted: ["washington","george washington"] },
+  { q: "What territory did the United States buy from France in 1803?", accepted: ["louisiana","louisiana territory"] },
+  { q: "Name the U.S. war between the North and the South.", accepted: ["civil war","the civil war","war between the states"] },
+  { q: "What did the Emancipation Proclamation do?", accepted: ["freed the slaves","freed slaves","freed slaves in the confederacy","freed slaves in the south"] },
+  { q: "What is the economic system in the United States?", accepted: ["capitalist","capitalist economy","market economy","capitalism"] },
+  { q: "Who was President during World War I?", accepted: ["wilson","woodrow wilson"] },
+  { q: "Who was President during the Great Depression and World War II?", accepted: ["roosevelt","franklin roosevelt","fdr","franklin d roosevelt"] },
+  { q: "What did the United States fight in World War II?", accepted: ["japan germany and italy","germany japan italy","axis powers"] },
+  { q: "What is one reason colonists came to America?", accepted: ["freedom","religious freedom","political liberty","economic opportunity","escape persecution"] },
+  { q: "What happened at the Constitutional Convention?", accepted: ["constitution was written","wrote the constitution","founding fathers wrote the constitution"] },
+  { q: "When was the Constitution written?", accepted: ["1787"] },
+  { q: "What is the 'rule of law'?", accepted: ["everyone must follow the law","no one is above the law","leaders must obey the law","government must obey the law"] },
+  { q: "What do we show loyalty to when we say the Pledge of Allegiance?", accepted: ["united states","the flag","flag","the united states"] },
+  { q: "When is the last day you can send in federal income tax forms?", accepted: ["april 15"] },
+  { q: "Why does the flag have 13 stripes?", accepted: ["13 original colonies","original colonies","13 colonies"] },
+  { q: "Why does the flag have 50 stars?", accepted: ["one star for each state","50 states","each star represents a state"] }
+];
+
+var questions = [], cur = 0, score = 0, answered = false, results = [];
+
+function normalize(s) {
+  return s.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+}
+
+function isCorrect(userAns, accepted) {
+  var u = normalize(userAns);
+  for (var i = 0; i < accepted.length; i++) {
+    var n = normalize(accepted[i]);
+    if (u === n || u.indexOf(n) !== -1 || n.indexOf(u) !== -1) return true;
+  }
+  return false;
+}
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i+1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function startQuiz() {
+  questions = shuffle(ALL_Q).slice(0,10);
+  cur = 0; score = 0; answered = false; results = [];
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('card-body').style.display = '';
+  document.getElementById('card-top') && (document.getElementById('card-top').style.display = '');
+  document.querySelector('.card-top').style.display = '';
+  showQ();
+}
+
+function showQ() {
+  answered = false;
+  var q = questions[cur];
+  var n = String(cur+1).padStart(2,'0');
+  document.getElementById('q-num').textContent = n + ' / 10';
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('prog-label').textContent = 'Question ' + (cur+1) + ' of 10';
+  document.getElementById('pbar').style.width = ((cur+1)/10*100) + '%';
+  document.getElementById('score-badge').textContent = 'Score: ' + score;
+  var inp = document.getElementById('ans-input');
+  inp.value = '';
+  inp.disabled = false;
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-submit').style.display = '';
+  document.getElementById('btn-next').style.display = 'none';
+  var cb = document.getElementById('card-body');
+  cb.classList.remove('animate-in');
+  void cb.offsetWidth;
+  cb.classList.add('animate-in');
+  setTimeout(function(){ inp.focus(); }, 50);
+}
+
+document.getElementById('ans-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!answered) checkAnswer();
+    else nextQ();
+  }
+});
+
+function checkAnswer() {
+  if (answered) return;
+  var inp = document.getElementById('ans-input');
+  var val = inp.value.trim();
+  if (!val) return;
+  answered = true;
+  inp.disabled = true;
+  document.getElementById('btn-submit').style.display = 'none';
+  document.getElementById('btn-next').style.display = '';
+  var q = questions[cur];
+  var correct = isCorrect(val, q.accepted);
+  if (correct) score++;
+  results.push(correct);
+  document.getElementById('score-badge').textContent = 'Score: ' + score;
+  var fb = document.getElementById('feedback');
+  fb.style.display = '';
+  if (correct) {
+    fb.className = 'feedback correct';
+    fb.textContent = 'Correct!';
+  } else {
+    fb.className = 'feedback wrong';
+    var sample = q.accepted[0].charAt(0).toUpperCase() + q.accepted[0].slice(1);
+    fb.textContent = 'Not quite. An accepted answer: ' + sample + (q.accepted.length > 1 ? ' (among others).' : '.');
+  }
+}
+
+function nextQ() {
+  cur++;
+  if (cur >= 10) showScore();
+  else showQ();
+}
+
+function showScore() {
+  document.getElementById('card-body').style.display = 'none';
+  document.querySelector('.card-top').style.display = 'none';
+  var ss = document.getElementById('score-screen');
+  ss.style.display = '';
+
+  document.getElementById('final-score').textContent = score;
+
+  var pips = document.getElementById('pip-row');
+  pips.innerHTML = '';
+  for (var i = 0; i < results.length; i++) {
+    var pip = document.createElement('div');
+    pip.className = 'pip ' + (results[i] ? 'c' : 'w');
+    pips.appendChild(pip);
+  }
+
+  var verdicts = [
+    ["Keep studying!", "The passing mark is 6/10 — you'll get there with more practice."],
+    ["Getting there.", "Keep reviewing and you'll hit the passing mark soon."],
+    ["Almost passing.", "Just one or two more right answers to reach the 6/10 threshold."],
+    ["You passed!", "6/10 meets the official USCIS passing standard. Well done."],
+    ["Great score!", "Solidly above the passing mark. Your civics knowledge is strong."],
+    ["Excellent!", "Nearly perfect — you clearly know your American history and government."],
+    ["Perfect score!", "10/10 — you're more than ready for the naturalization test."]
+  ];
+  var idx = score <= 2 ? 0 : score <= 4 ? 1 : score === 5 ? 2 : score === 6 ? 3 : score <= 8 ? 4 : score === 9 ? 5 : 6;
+  document.getElementById('verdict').textContent = verdicts[idx][0];
+  document.getElementById('score-detail').textContent = verdicts[idx][1];
+}
+
+startQuiz();
+</script>
+</body>
+</html>
